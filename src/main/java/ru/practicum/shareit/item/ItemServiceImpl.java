@@ -25,14 +25,10 @@ public class ItemServiceImpl implements ItemService {
 
     @Override
     public Item createItem(ItemDto itemDto, Long ownerId) {
-        if (itemDto == null || ownerId == null) {
-            throw new ValidationException("provided data cannot be null");
-        }
 
         validateOwnerId(ownerId);
 
         Item newItem = ItemMapper.toItem(itemDto);
-        validateItem(newItem);
         newItem.setOwner(userRepository.getUserById(ownerId));
 
         return itemRepository.createItem(newItem);
@@ -40,9 +36,7 @@ public class ItemServiceImpl implements ItemService {
 
     @Override
     public Item updateItem(ItemDto itemDto, Long ownerId, Long itemId) {
-        if (itemDto == null || ownerId == null || itemId == null) {
-            throw new ValidationException("provided data cannot be null");
-        }
+
         validateOwnerId(ownerId);
 
         Item updatedItem = ItemMapper.toItem(itemDto);
@@ -75,19 +69,11 @@ public class ItemServiceImpl implements ItemService {
 
     @Override
     public ItemDto getItemById(Long itemId) {
-        if (itemId == null) {
-            throw new ValidationException("provided data cannot be null");
-        }
-
         return ItemMapper.toItemDto(itemRepository.getItemById(itemId));
     }
 
     @Override
     public Collection<ItemDto> getItemsOfOwner(Long ownerId) {
-        if (ownerId == null) {
-            throw new ValidationException("provided data cannot be null");
-        }
-
         return itemRepository.getAllItems().stream()
                 .filter(item -> item.getOwner().getId().equals(ownerId))
                 .map(ItemMapper::toItemDto)
@@ -96,10 +82,6 @@ public class ItemServiceImpl implements ItemService {
 
     @Override
     public Collection<ItemDto> findItemsByText(String text) {
-        if (text == null) {
-            throw new ValidationException("provided data cannot be null");
-        }
-
         if (text.isBlank()) {
             return new ArrayList<>();
         }
@@ -112,19 +94,6 @@ public class ItemServiceImpl implements ItemService {
                 .collect(Collectors.toList());
     }
 
-    private void validateItem(Item item) {
-        if (item.getName() == null || item.getName().isBlank()) {
-            throw new ValidationException("invalid or empty item name!");
-        }
-
-        if (item.getAvailable() == null) {
-            throw new ValidationException("available status MUST be provided!");
-        }
-
-        if (item.getDescription() == null || item.getDescription().isBlank()) {
-            throw new ValidationException("invalid or empty item description!");
-        }
-    }
 
     private void validateOwnerId(Long ownerId) {
 

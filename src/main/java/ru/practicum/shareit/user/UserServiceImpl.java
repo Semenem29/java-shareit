@@ -4,7 +4,7 @@ import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.exception.UserAlreadyExistException;
-import ru.practicum.shareit.exception.ValidationException;
+import ru.practicum.shareit.user.dto.UserDto;
 import ru.practicum.shareit.user.model.User;
 
 import java.util.Collection;
@@ -18,35 +18,25 @@ public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
 
     @Override
-    public Collection<User> getAllUsers() {
-        return userRepository.getAllUsers();
+    public Collection<UserDto> getAllUsers() {
+        return userRepository.getAllUsers().stream()
+                .map(UserMapper::toUserDto)
+                .collect(Collectors.toList());
     }
 
     @Override
     public User createUser(User user) {
-        if (user == null) {
-            throw new ValidationException("user cannot be null");
-        }
-
-        userCreateValidation(user);
+        emailAlreadyExistValidation(user);
         return userRepository.createUser(user);
     }
 
     @Override
-    public User getUserById(Long id) {
-        if (id == null) {
-            throw new ValidationException("userId cannot be null");
-        }
-
-        return userRepository.getUserById(id);
+    public UserDto getUserById(Long id) {
+        return UserMapper.toUserDto(userRepository.getUserById(id));
     }
 
     @Override
     public User updateUserById(User user, Long id) {
-        if (id == null) {
-            throw new ValidationException("provided data cannot be null");
-        }
-
         User fetchedUser = userRepository.getUserById(id);
         user.setId(fetchedUser.getId());
 
@@ -65,31 +55,9 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public User deleteUserById(Long id) {
-        if (id == null) {
-            throw new ValidationException("userId cannot be null");
-        }
-
         return userRepository.deleteUserById(id);
     }
 
-    private void userCreateValidation(User user) {
-        if (user == null) {
-            throw new ValidationException("user cannot be null");
-        }
-
-        emailAndNameValidation(user.getEmail(), user.getName());
-        emailAlreadyExistValidation(user);
-    }
-
-    private void emailAndNameValidation(String email, String name) {
-        if (email == null || email.isBlank() || !email.contains("@") || !email.contains(".")) {
-            throw new ValidationException("invalid or empty email was provided!");
-        }
-
-        if (name == null || name.isBlank()) {
-            throw new ValidationException("invalid or empty name was provided!");
-        }
-    }
 
     private void emailAlreadyExistValidation(User user) {
         Long userId = user.getId();
