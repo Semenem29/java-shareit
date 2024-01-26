@@ -15,14 +15,12 @@ import java.util.Collection;
 @RestController
 @RequestMapping("/items")
 @AllArgsConstructor
-@Validated
 public class ItemController {
 
     @Autowired
     private final ItemService itemService;
 
     @PostMapping
-    @Validated(Create.class)
     public Item createItem(@NotNull @RequestHeader("X-Sharer-User-Id") Long ownerId,
                            @NotNull @Valid @RequestBody ItemDto itemDto) {
         return itemService.createItem(itemDto, ownerId);
