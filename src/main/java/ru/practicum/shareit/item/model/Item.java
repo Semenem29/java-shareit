@@ -1,19 +1,34 @@
 package ru.practicum.shareit.item.model;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import ru.practicum.shareit.booking.model.Booking;
+import lombok.*;
 import ru.practicum.shareit.request.model.ItemRequest;
 import ru.practicum.shareit.user.model.User;
 
-@Data
+import javax.persistence.*;
+
+@Getter
+@Setter
+@NoArgsConstructor
 @AllArgsConstructor
+@Builder(toBuilder = true)
+@Entity
+@Table(name = "items")
 public class Item {
-    private Long id;
-    private String name;
-    private String description;
-    private Boolean available;
-    private User owner;
-    private Booking booking;
-    private ItemRequest request;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id", nullable = false)
+    Long id;
+    @Column(name = "name", nullable = false)
+    String name;
+    @Column(name = "description", nullable = false)
+    String description;
+    @Column(name = "available", nullable = false)
+    Boolean available;
+    @ManyToOne()
+    @JoinColumn(name = "owner", referencedColumnName = "id", nullable = false)
+    User owner;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "request", referencedColumnName = "id")
+    ItemRequest request;
+
 }

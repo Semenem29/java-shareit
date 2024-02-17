@@ -1,15 +1,16 @@
-package ru.practicum.shareit.user;
+package ru.practicum.shareit.user.storage;
 
 import org.springframework.stereotype.Repository;
 import ru.practicum.shareit.exception.UserAlreadyExistException;
 import ru.practicum.shareit.exception.UserNotExistException;
 import ru.practicum.shareit.user.model.User;
+import ru.practicum.shareit.user.storage.UserRepository;
 
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
-@Repository
+//@Repository
 public class UserRepositoryImpl implements UserRepository {
     private final Map<Long, User> userTable = new HashMap<>();
     private Long lastId = 0L;
