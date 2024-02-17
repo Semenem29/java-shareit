@@ -146,8 +146,8 @@ public class ItemJPAServiceImpl implements ItemJPAService {
     private void validAccessToAddComment(Long userId, Long itemId) {
         LocalDateTime now = LocalDateTime.now();
         BookingStatus bookingStatus = BookingStatus.APPROVED;
-        List<Booking> bookings = bookingJPARepository.
-                findAllByItemIdAndBookerIdAndStatusAndStartIsBefore(itemId, userId, bookingStatus, now);
+        List<Booking> bookings = bookingJPARepository
+                .findAllByItemIdAndBookerIdAndStatusAndStartIsBefore(itemId, userId, bookingStatus, now);
 
         if (bookings.isEmpty()) {
             String message = "it's forbidden to comment item you've never booked";

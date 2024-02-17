@@ -11,7 +11,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class ItemResponseDto {
 
-    Long Id;
+    Long id;
     @NonNull
     @NotBlank
     String name;
