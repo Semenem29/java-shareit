@@ -7,6 +7,7 @@ import ru.practicum.shareit.booking.dto.BookingRequestDto;
 import ru.practicum.shareit.booking.dto.BookingResponseDto;
 import ru.practicum.shareit.booking.service.BookingJPAService;
 
+import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import java.util.Collection;
 
@@ -22,7 +23,7 @@ public class BookingController {
 
     @PostMapping
     public BookingResponseDto createBooking(@NotNull @RequestHeader("X-Sharer-User-Id") Long bookerId,
-                                            @RequestBody BookingRequestDto bookingRequestDto) {
+                                            @RequestBody @Valid BookingRequestDto bookingRequestDto) {
 
         log.info("POST-request: creating request with userId : {}, and booking:  {}", bookerId, bookingRequestDto);
         return bookingService.createBooking(bookingRequestDto, bookerId);
