@@ -1,9 +1,16 @@
 package ru.practicum.shareit.item;
 
-import ru.practicum.shareit.booking.model.Booking;
+import org.springframework.lang.Nullable;
+import ru.practicum.shareit.booking.dto.BookingItemResponseDto;
+import ru.practicum.shareit.item.dto.CommentResponseDto;
 import ru.practicum.shareit.item.dto.ItemDto;
+import ru.practicum.shareit.item.dto.ItemResponseDto;
 import ru.practicum.shareit.item.model.Item;
+import ru.practicum.shareit.request.model.ItemRequest;
 import ru.practicum.shareit.user.model.User;
+
+import java.util.Collections;
+import java.util.List;
 
 public class ItemMapper {
     public static ItemDto toItemDto(Item item) {
@@ -11,20 +18,48 @@ public class ItemMapper {
                 item.getId(),
                 item.getName(),
                 item.getDescription(),
-                item.getBooking().isAvailable(),
-                item.getRequest()
+                item.getAvailable(),
+                item.getRequest() == null ? null : item.getRequest().getId()
         );
     }
 
-    public static Item toItem(ItemDto itemDto) {
-        return new Item(
-                null,
+    public static Item toItem(ItemDto itemDto, User user, @Nullable ItemRequest itemRequest) {
+        return Item.builder()
+                .id(itemDto.getId())
+                .name(itemDto.getName())
+                .description(itemDto.getDescription())
+                .available(itemDto.getAvailable())
+                .owner(user)
+                .request(itemRequest)
+                .build();
+    }
+
+    public static ItemResponseDto toItemResponseDto(ItemDto itemDto) {
+        return new ItemResponseDto(
+                itemDto.getId(),
                 itemDto.getName(),
                 itemDto.getDescription(),
-                itemDto.getAvailable() != null ? itemDto.getAvailable() : null,
-                new User(),
-                new Booking(),
-                itemDto.getRequest()
+                itemDto.getAvailable(),
+                null,
+                null,
+                null,
+                Collections.emptyList()
+        );
+    }
+
+    public static ItemResponseDto toItemResponseDto(Item item,
+                                                    BookingItemResponseDto lastBooking,
+                                                    BookingItemResponseDto nextBooking,
+                                                    List<CommentResponseDto> comments) {
+        return new ItemResponseDto(
+                item.getId(),
+                item.getName(),
+                item.getDescription(),
+                item.getAvailable(),
+                lastBooking,
+                nextBooking,
+                item.getRequest() == null ? null : item.getRequest().getId(),
+                comments
         );
     }
 }
