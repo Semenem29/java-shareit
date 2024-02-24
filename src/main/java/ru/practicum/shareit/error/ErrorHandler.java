@@ -48,7 +48,8 @@ public class ErrorHandler {
         return new ErrorResponse("You have no access to perfrom this operation");
     }
 
-    @ExceptionHandler({UserNotExistException.class, ItemNotExistException.class, BookingIsNotExistException.class})
+    @ExceptionHandler({UserNotExistException.class, ItemNotExistException.class,
+            BookingIsNotExistException.class, ItemRequestNotExistException.class})
     @ResponseStatus(HttpStatus.NOT_FOUND)
     public ErrorResponse handleNotExistUserError(final RuntimeException e) {
         return new ErrorResponse("provided object not found: " + e.getMessage());

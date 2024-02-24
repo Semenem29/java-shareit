@@ -14,9 +14,9 @@ public interface ItemJPAService {
 
     ItemResponseDto getItemById(Long userId, Long itemId);
 
-    List<ItemResponseDto> getItemsOfOwner(Long ownerId);
+    List<ItemResponseDto> getItemsOfOwner(Long ownerId, Integer from, Integer size);
 
-    List<ItemResponseDto> findItemsByText(String text);
+    List<ItemResponseDto> findItemsByText(String text, Integer from, Integer size);
 
     CommentResponseDto addComment(Long userId, Long itemId, CommentRequestDto commentRequestDto);
 }

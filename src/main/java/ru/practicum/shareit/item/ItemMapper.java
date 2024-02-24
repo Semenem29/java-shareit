@@ -4,6 +4,7 @@ import org.springframework.lang.Nullable;
 import ru.practicum.shareit.booking.dto.BookingItemResponseDto;
 import ru.practicum.shareit.item.dto.CommentResponseDto;
 import ru.practicum.shareit.item.dto.ItemDto;
+import ru.practicum.shareit.item.dto.ItemItemRequestDto;
 import ru.practicum.shareit.item.dto.ItemResponseDto;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.request.model.ItemRequest;
@@ -11,6 +12,7 @@ import ru.practicum.shareit.user.model.User;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class ItemMapper {
     public static ItemDto toItemDto(Item item) {
@@ -61,5 +63,21 @@ public class ItemMapper {
                 item.getRequest() == null ? null : item.getRequest().getId(),
                 comments
         );
+    }
+
+    public static ItemItemRequestDto toItemItemRequestDto(Item item) {
+        return ItemItemRequestDto.builder()
+                .id(item.getId())
+                .name(item.getName())
+                .description(item.getDescription())
+                .requestId(item.getRequest() == null ? null : item.getRequest().getId())
+                .available(item.getAvailable())
+                .build();
+    }
+
+    public static List<ItemItemRequestDto> toItemItemRequestDtoList(List<Item> items) {
+        return items.stream()
+                .map(ItemMapper::toItemItemRequestDto)
+                .collect(Collectors.toList());
     }
 }
