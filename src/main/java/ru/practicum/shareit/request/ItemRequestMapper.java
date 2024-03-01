@@ -14,7 +14,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 public class ItemRequestMapper {
-    private static DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSSSSSSSS");
+    private static DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSSSSS");
 
     public static ItemRequestDto toRequestDto(ItemRequest request) {
         return ItemRequestDto.builder()
@@ -25,8 +25,8 @@ public class ItemRequestMapper {
 
     public static ItemRequest toItemRequest(ItemRequestDto requestDto, User user) {
 
-        LocalDateTime now = LocalDateTime.parse(LocalDateTime.now().format(formatter),
-                formatter);
+        String nowString = LocalDateTime.now().format(formatter);
+        LocalDateTime now = LocalDateTime.parse(nowString);
         return ItemRequest.builder()
                 .id(requestDto.getId())
                 .description(requestDto.getDescription())
@@ -42,17 +42,22 @@ public class ItemRequestMapper {
     }
 
     public static ItemRequestResponseDto toItemRequestResponseDto(ItemRequest request, List<Item> items) {
+        LocalDateTime created = null;
+        if (request.getCreated() != null) {
+             String createdString = request.getCreated().format(formatter);
+             created = LocalDateTime.parse(createdString);
+        }
+
         return ItemRequestResponseDto.builder()
                 .id(request.getId())
                 .description(request.getDescription())
-                .created(request.getCreated())
+                .created(created)
                 .items(items == null ? new ArrayList<>() : ItemMapper.toItemItemRequestDtoList(items))
                 .build();
     }
 
     public static ItemRequest toItemRequest(ItemRequestResponseDto itemRequestResponseDto, User user) {
         return ItemRequest.builder()
-                //.id(itemRequestResponseDto.getId())
                 .description(itemRequestResponseDto.getDescription())
                 .created(itemRequestResponseDto.getCreated())
                 .requester(user)

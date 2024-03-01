@@ -18,7 +18,7 @@ import java.util.List;
 public class ItemRequestResponseDto {
     Long id;
     String description;
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSSSSSSSS")
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSSSSS")
     LocalDateTime created;
     List<ItemDto> items;
 }
