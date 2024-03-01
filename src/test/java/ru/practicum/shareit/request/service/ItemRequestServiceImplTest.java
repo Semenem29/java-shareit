@@ -6,7 +6,6 @@ import org.mockito.*;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import ru.practicum.shareit.exception.ItemNotExistException;
 import ru.practicum.shareit.exception.ItemRequestNotExistException;
 import ru.practicum.shareit.exception.UserNotExistException;
 import ru.practicum.shareit.item.ItemMapper;
@@ -337,8 +336,8 @@ public class ItemRequestServiceImplTest {
         List<ItemRequestResponseDto> expectedItemRequests = List.of(expectedItemRequest1,
                 expectedItemRequest2, expectedItemRequest3);
 
-        when(userRepository.findById(requesterId)).
-                thenReturn(Optional.of(requester));
+        when(userRepository.findById(requesterId))
+                .thenReturn(Optional.of(requester));
         when(itemRequestRepository.findAllByRequesterIdIsNotOrderByCreatedDesc(requesterId, pageRequest))
                 .thenReturn(itemRequests);
         when(itemRepository.findAllByRequestIn(itemRequests))

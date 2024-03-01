@@ -2,7 +2,6 @@ package ru.practicum.shareit.booking.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -40,14 +39,14 @@ public class BookingJPAServiceImpl implements BookingJPAService {
 
     @Override
     @Transactional
-    public BookingResponseDto createBooking(BookingDto BookingDto, Long bookerId) {
-        validateDateAndTime(BookingDto.getStart(), BookingDto.getEnd());
-        Item item = getItemOrThrow(BookingDto.getItemId());
+    public BookingResponseDto createBooking(BookingDto bookingDto, Long bookerId) {
+        validateDateAndTime(bookingDto.getStart(), bookingDto.getEnd());
+        Item item = getItemOrThrow(bookingDto.getItemId());
         checkIsItemAvailable(item);
         User owner = getUserOrThrow(bookerId);
         checkIsNotOwnerOrThrow(item, bookerId);
 
-        Booking booking = BookingMapper.toBooking(BookingDto, owner, item, BookingStatus.WAITING);
+        Booking booking = BookingMapper.toBooking(bookingDto, owner, item, BookingStatus.WAITING);
         Booking savedBooking = bookingJPARepository.save(booking);
         log.info(String.format("booking is completed: ", savedBooking));
 

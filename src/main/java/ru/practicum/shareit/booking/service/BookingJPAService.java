@@ -6,7 +6,7 @@ import ru.practicum.shareit.booking.dto.BookingResponseDto;
 import java.util.List;
 
 public interface BookingJPAService {
-    BookingResponseDto createBooking(BookingDto BookingDto, Long bookerId);
+    BookingResponseDto createBooking(BookingDto bookingDto, Long bookerId);
 
     BookingResponseDto approveBookingStatus(Boolean approved, Long bookingId, Long ownerId);
 

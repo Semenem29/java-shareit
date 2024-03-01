@@ -27,7 +27,7 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 @Slf4j
-public class ItemRequestJPAServiceImpl implements ItemRequestJPAService{
+public class ItemRequestJPAServiceImpl implements ItemRequestJPAService {
     ItemRequestJPARepository itemRequestJpaRepository;
     UserJPARepository userJPARepository;
     ItemJPARepository itemJPARepository;
@@ -50,9 +50,9 @@ public class ItemRequestJPAServiceImpl implements ItemRequestJPAService{
         List<ItemRequest> requests = itemRequestJpaRepository.findAllByRequesterIdOrderByCreatedDesc(requesterId);
         Map<ItemRequest, List<Item>> requestTable = getItemsOfItemRequest(requests);
         List<ItemRequestResponseDto> resultItemRequests = requests.stream()
-                        .map(item -> ItemRequestMapper
-                                .toItemRequestResponseDto(item, requestTable.getOrDefault(item, Collections.emptyList())))
-                                .collect(Collectors.toList());
+                .map(item -> ItemRequestMapper
+                        .toItemRequestResponseDto(item, requestTable.getOrDefault(item, Collections.emptyList())))
+                .collect(Collectors.toList());
         logItemRequestList(resultItemRequests);
         return resultItemRequests;
     }
@@ -81,9 +81,9 @@ public class ItemRequestJPAServiceImpl implements ItemRequestJPAService{
         Map<ItemRequest, List<Item>> requests = getItemsOfItemRequest(itemRequests);
 
         List<ItemRequestResponseDto> requestResponseDtos = itemRequests.stream()
-                        .map(item -> ItemRequestMapper
-                                .toItemRequestResponseDto(item, requests.getOrDefault(item, Collections.emptyList())))
-                                .collect(Collectors.toList());
+                .map(item -> ItemRequestMapper
+                        .toItemRequestResponseDto(item, requests.getOrDefault(item, Collections.emptyList())))
+                .collect(Collectors.toList());
         logItemRequestList(requestResponseDtos);
         return requestResponseDtos;
     }

@@ -495,7 +495,7 @@ public class BookingServiceIntegrationTest {
 
         assertThrows(AccessIsDeniedException.class,
                 () -> bookingService.getBooking(bookingId, otherId),
-               "for getting booking info you must be the item owner or the booker");
+                "for getting booking info you must be the item owner or the booker");
 
     }
 
@@ -919,6 +919,7 @@ public class BookingServiceIntegrationTest {
         assertEquals(result.get(1).getId(), bookingId1);
         assertEquals(result.get(1).getStatus(), BookingStatus.WAITING);
     }
+
     @Test
     public void shouldGetListByOwnerFutureBookings() {
 
@@ -1135,6 +1136,7 @@ public class BookingServiceIntegrationTest {
         assertEquals(result.get(1).getId(), bookingId1);
         assertEquals(result.get(1).getStatus(), BookingStatus.WAITING);
     }
+
     @Test
     public void shouldFailGetListByUserNotFound() {
 

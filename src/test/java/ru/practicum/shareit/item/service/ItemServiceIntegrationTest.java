@@ -298,6 +298,7 @@ public class ItemServiceIntegrationTest {
                 .hasFieldOrPropertyWithValue("nextBooking", null)
                 .hasFieldOrPropertyWithValue("comments", Collections.emptyList());
     }
+
     @Test
     public void shouldThrowExceptionIfItemNotFoundById() {
 
