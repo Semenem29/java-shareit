@@ -1,5 +1,6 @@
 package ru.practicum.shareit.request.model;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 import ru.practicum.shareit.user.model.User;
@@ -16,18 +17,18 @@ import java.time.LocalDateTime;
 @Builder(toBuilder = true)
 @AllArgsConstructor
 @NoArgsConstructor
-@FieldDefaults(level = AccessLevel.PRIVATE)
 public class ItemRequest {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id", nullable = false)
-     Long id;
+    private Long id;
     @Column(name = "description", nullable = false)
-     String description;
+    private String description;
     @ManyToOne
     @JoinColumn(name = "requester", referencedColumnName = "id")
-    User requester;
+    private User requester;
     @Column(name = "created", nullable = false)
-     LocalDateTime created;
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSSSSSSSS")
+    private LocalDateTime created;
 }
 

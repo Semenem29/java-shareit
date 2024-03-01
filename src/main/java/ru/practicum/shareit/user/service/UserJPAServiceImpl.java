@@ -29,8 +29,8 @@ public class UserJPAServiceImpl implements UserJPAService {
     @Transactional
     public UserDto createUser(UserDto userDto) {
         User user = UserMapper.toUser(userDto);
-        userJPARepository.save(user);
-        userDto = UserMapper.toUserDto(user);
+        User savedUser = userJPARepository.save(user);
+        userDto = UserMapper.toUserDto(savedUser);
         log.info("Created USER={}", userDto);
         return userDto;
     }

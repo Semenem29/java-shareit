@@ -10,7 +10,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.shareit.exception.ItemRequestNotExistException;
 import ru.practicum.shareit.exception.UserNotExistException;
-import ru.practicum.shareit.item.dto.ItemItemRequestDto;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.storage.ItemJPARepository;
 import ru.practicum.shareit.request.ItemRequestMapper;
@@ -38,8 +37,8 @@ public class ItemRequestJPAServiceImpl implements ItemRequestJPAService{
     public ItemRequestResponseDto createRequest(Long requesterId, ItemRequestDto itemRequestDto) {
         User user = getUserOrThrow(requesterId);
         ItemRequest itemRequest = ItemRequestMapper.toItemRequest(itemRequestDto, user);
-        itemRequestJpaRepository.save(itemRequest);
-        ItemRequestResponseDto itemRequestResponseDto = ItemRequestMapper.toItemRequestResponseDto(itemRequest, null);
+        ItemRequest savedItemRequest = itemRequestJpaRepository.save(itemRequest);
+        ItemRequestResponseDto itemRequestResponseDto = ItemRequestMapper.toItemRequestResponseDto(savedItemRequest, null);
         log.info("creation request: user with id={} have created request:{}", requesterId, itemRequestResponseDto);
         return itemRequestResponseDto;
     }
@@ -48,37 +47,14 @@ public class ItemRequestJPAServiceImpl implements ItemRequestJPAService{
     @Transactional(readOnly = true)
     public List<ItemRequestResponseDto> findAllByRequester(Long requesterId) {
         getUserOrThrow(requesterId);
-        log.info("User EXIST!!");
         List<ItemRequest> requests = itemRequestJpaRepository.findAllByRequesterIdOrderByCreatedDesc(requesterId);
-        log.info("user with id={}, requests: {}", requesterId, requests);
         Map<ItemRequest, List<Item>> requestTable = getItemsOfItemRequest(requests);
-        List<ItemRequestResponseDto> resultItemRequests = requestTable.entrySet().stream()
-                .map(entry -> ItemRequestMapper.toItemRequestResponseDto(entry.getKey(), entry.getValue()))
-                .collect(Collectors.toList());
+        List<ItemRequestResponseDto> resultItemRequests = requests.stream()
+                        .map(item -> ItemRequestMapper
+                                .toItemRequestResponseDto(item, requestTable.getOrDefault(item, Collections.emptyList())))
+                                .collect(Collectors.toList());
         logItemRequestList(resultItemRequests);
         return resultItemRequests;
-    }
-
-    private void logItemRequestList(List<ItemRequestResponseDto> resultItemRequests) {
-        String requests = resultItemRequests.stream()
-                .map(ItemRequestResponseDto::toString)
-                .collect(Collectors.joining(", "));
-        log.info("provided info about item request llist: {}", requests);
-    }
-
-    private Map<ItemRequest, List<Item>> getItemsOfItemRequest(List<ItemRequest> requests) {
-        List<Item> items = itemJPARepository.findAllByRequestIn(requests);
-        log.info("uesers items: {}", items);
-        if (items.isEmpty()) {
-            return requests.stream()
-                    .collect(Collectors.toMap(
-                            request -> request,
-                            request -> new ArrayList<>()
-                    ));
-        }
-
-        return items.stream()
-                .collect(Collectors.groupingBy(Item::getRequest));
     }
 
     @Override
@@ -104,11 +80,34 @@ public class ItemRequestJPAServiceImpl implements ItemRequestJPAService{
 
         Map<ItemRequest, List<Item>> requests = getItemsOfItemRequest(itemRequests);
 
-        List<ItemRequestResponseDto> requestResponseDtos = requests.entrySet().stream()
-                .map(entry -> ItemRequestMapper.toItemRequestResponseDto(entry.getKey(), entry.getValue()))
-                .collect(Collectors.toList());
+        List<ItemRequestResponseDto> requestResponseDtos = itemRequests.stream()
+                        .map(item -> ItemRequestMapper
+                                .toItemRequestResponseDto(item, requests.getOrDefault(item, Collections.emptyList())))
+                                .collect(Collectors.toList());
         logItemRequestList(requestResponseDtos);
         return requestResponseDtos;
+    }
+
+    private void logItemRequestList(List<ItemRequestResponseDto> resultItemRequests) {
+        String requests = resultItemRequests.stream()
+                .map(ItemRequestResponseDto::toString)
+                .collect(Collectors.joining(", "));
+        log.info("provided info about item request llist: {}", requests);
+    }
+
+    private Map<ItemRequest, List<Item>> getItemsOfItemRequest(List<ItemRequest> requests) {
+        List<Item> items = itemJPARepository.findAllByRequestIn(requests);
+        log.info("uesers items: {}", items);
+        if (items.isEmpty()) {
+            return requests.stream()
+                    .collect(Collectors.toMap(
+                            request -> request,
+                            request -> new ArrayList<>()
+                    ));
+        }
+
+        return items.stream()
+                .collect(Collectors.groupingBy(Item::getRequest));
     }
 
     private User getUserOrThrow(Long userId) {

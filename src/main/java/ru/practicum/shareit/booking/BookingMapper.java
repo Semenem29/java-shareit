@@ -45,6 +45,17 @@ public class BookingMapper {
                 .build();
     }
 
+    public static Booking toBooking(BookingResponseDto bookingResponseDto) {
+        return Booking.builder()
+                .id(bookingResponseDto.getId())
+                .start(bookingResponseDto.getStart())
+                .end(bookingResponseDto.getEnd())
+                .booker(bookingResponseDto.getBooker())
+                .item(bookingResponseDto.getItem())
+                .status(bookingResponseDto.getStatus())
+                .build();
+    }
+
 
     public static List<BookingResponseDto> toBookingResponseDtoList(Collection<Booking> bookings) {
         return bookings.stream()

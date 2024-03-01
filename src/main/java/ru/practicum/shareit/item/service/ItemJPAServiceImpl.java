@@ -50,9 +50,9 @@ public class ItemJPAServiceImpl implements ItemJPAService {
         ItemRequest itemRequest = getItemRequestOrThrow(itemDto);
         Item item = ItemMapper.toItem(itemDto, owner, itemRequest);
 
-        itemJPARepository.save(item);
-        log.info("Saved the item: {}", item);
-        return ItemMapper.toItemDto(item);
+        Item savedItem = itemJPARepository.save(item);
+        log.info("Saved the item: {}", savedItem);
+        return ItemMapper.toItemDto(savedItem);
     }
 
     private ItemRequest getItemRequestOrThrow(ItemDto itemDto) {
@@ -164,9 +164,9 @@ public class ItemJPAServiceImpl implements ItemJPAService {
 
         validAccessToAddComment(userId, itemId);
         Comment comment = CommentMapper.toComment(commentRequestDto, author, item);
-        commentJPARepository.save(comment);
-        log.info("Created the comment with authorId={}, itemId={}, and comment={}", userId, itemId, comment);
-        return CommentMapper.toCommentResponseDto(comment);
+        Comment savedComment = commentJPARepository.save(comment);
+        log.info("Created the comment with authorId={}, itemId={}, and comment={}", userId, itemId, savedComment);
+        return CommentMapper.toCommentResponseDto(savedComment);
     }
 
     private void validAccessToAddComment(Long userId, Long itemId) {

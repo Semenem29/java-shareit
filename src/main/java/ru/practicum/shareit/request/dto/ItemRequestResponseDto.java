@@ -1,9 +1,10 @@
 package ru.practicum.shareit.request.dto;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Builder;
 import lombok.RequiredArgsConstructor;
 import lombok.Value;
-import ru.practicum.shareit.item.dto.ItemItemRequestDto;
+import ru.practicum.shareit.item.dto.ItemDto;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -17,6 +18,7 @@ import java.util.List;
 public class ItemRequestResponseDto {
     Long id;
     String description;
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSSSSSSSS")
     LocalDateTime created;
-    List<ItemItemRequestDto> items;
+    List<ItemDto> items;
 }

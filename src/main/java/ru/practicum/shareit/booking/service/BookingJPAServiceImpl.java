@@ -48,10 +48,10 @@ public class BookingJPAServiceImpl implements BookingJPAService {
         checkIsNotOwnerOrThrow(item, bookerId);
 
         Booking booking = BookingMapper.toBooking(BookingDto, owner, item, BookingStatus.WAITING);
-        bookingJPARepository.save(booking);
-        log.info(String.format("booking is completed: ", booking));
+        Booking savedBooking = bookingJPARepository.save(booking);
+        log.info(String.format("booking is completed: ", savedBooking));
 
-        return BookingMapper.toBookingResponseDto(booking);
+        return BookingMapper.toBookingResponseDto(savedBooking);
     }
 
     @Override
@@ -261,8 +261,8 @@ public class BookingJPAServiceImpl implements BookingJPAService {
 
 
     private Booking validateItemOwnerAndGetBooking(Long ownerId, Long bookingId) {
-        Booking booking = getBookingOrThrow(bookingId);
         User owner = getUserOrThrow(ownerId);
+        Booking booking = getBookingOrThrow(bookingId);
         if (!isOwner(owner.getId(), booking.getItem())) {
             String message = "to set booking status you must be the owner!!!";
             log.error("AccessIsDeniedException: " + message);
