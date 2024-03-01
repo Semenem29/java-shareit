@@ -44,8 +44,8 @@ public class ItemRequestMapper {
     public static ItemRequestResponseDto toItemRequestResponseDto(ItemRequest request, List<Item> items) {
         LocalDateTime created = null;
         if (request.getCreated() != null) {
-             String createdString = request.getCreated().format(formatter);
-             created = LocalDateTime.parse(createdString);
+            String createdString = request.getCreated().format(formatter);
+            created = LocalDateTime.parse(createdString);
         }
 
         return ItemRequestResponseDto.builder()
