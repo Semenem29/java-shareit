@@ -6,8 +6,7 @@ import ru.practicum.shareit.user.model.User;
 
 import javax.persistence.*;
 
-@Getter
-@Setter
+@Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder(toBuilder = true)
@@ -27,7 +26,7 @@ public class Item {
     @ManyToOne()
     @JoinColumn(name = "owner", referencedColumnName = "id", nullable = false)
     User owner;
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne
     @JoinColumn(name = "request", referencedColumnName = "id")
     ItemRequest request;
 

@@ -1,51 +1,62 @@
 package ru.practicum.shareit.booking.store;
 
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.booking.model.BookingStatus;
 
 import java.time.LocalDateTime;
-import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 
 @Repository
 public interface BookingJPARepository extends JpaRepository<Booking, Long> {
-    Collection<Booking> findAllByItemOwnerIdOrderByStartDesc(Long ownerId);
+    List<Booking> findAllByItemOwnerIdOrderByStartDesc(Long ownerId, Pageable pageRequest);
 
-    Collection<Booking> findAllByItemOwnerIdAndEndIsBeforeOrderByStartDesc(Long ownerId,
-                                                                           LocalDateTime now);
+    List<Booking> findAllByItemOwnerIdAndEndIsBeforeOrderByStartDesc(Long ownerId,
+                                                                     LocalDateTime now,
+                                                                     Pageable pageRequest);
 
-    Collection<Booking> findAllByItemOwnerIdAndStartIsBeforeAndEndIsAfterOrderByStartDesc(Long ownerId,
-                                                                                          LocalDateTime now,
-                                                                                          LocalDateTime anotherNow);
+    List<Booking> findAllByItemOwnerIdAndStartIsBeforeAndEndIsAfterOrderByStartDesc(Long ownerId,
+                                                                                    LocalDateTime now,
+                                                                                    LocalDateTime anotherNow,
+                                                                                    Pageable pageRequest);
 
-    Collection<Booking> findAllByItemOwnerIdAndStartIsAfterOrderByStartDesc(Long ownerId,
-                                                                            LocalDateTime now);
+    List<Booking> findAllByItemOwnerIdAndStartIsAfterOrderByStartDesc(Long ownerId,
+                                                                      LocalDateTime now,
+                                                                      Pageable pageRequest);
 
-    Collection<Booking> findAllByItemOwnerIdAndStatusInOrderByStartDesc(Long ownerId,
-                                                                        List<BookingStatus> rejectedStatuses);
+    List<Booking> findAllByItemOwnerIdAndStatusInOrderByStartDesc(Long ownerId,
+                                                                  List<BookingStatus> rejectedStatuses,
+                                                                  Pageable pageRequest);
 
-    Collection<Booking> findAllByItemOwnerIdAndStatusOrderByStartDesc(Long ownerId,
-                                                                      BookingStatus bookingStatus);
+    List<Booking> findAllByItemOwnerIdAndStatusOrderByStartDesc(Long ownerId,
+                                                                BookingStatus bookingStatus,
+                                                                Pageable pageRequest);
 
-    Collection<Booking> findAllByBookerIdOrderByStartDesc(Long bookerId);
+    List<Booking> findAllByBookerIdOrderByStartDesc(Long bookerId, Pageable pageRequest);
 
-    Collection<Booking> findAllByBookerIdAndStartIsBeforeAndEndIsAfterOrderByStartDesc(Long bookerId,
-                                                                                       LocalDateTime now,
-                                                                                       LocalDateTime anotherNow);
+    List<Booking> findAllByBookerIdAndStartIsBeforeAndEndIsAfterOrderByStartDesc(Long bookerId,
+                                                                                 LocalDateTime now,
+                                                                                 LocalDateTime anotherNow,
+                                                                                 Pageable pageRequest);
 
-    Collection<Booking> findAllByBookerIdAndEndIsBeforeOrderByStartDesc(Long bookerId,
-                                                                        LocalDateTime now);
+    List<Booking> findAllByBookerIdAndEndIsBeforeOrderByStartDesc(Long bookerId,
+                                                                  LocalDateTime now,
+                                                                  Pageable pageRequest);
 
-    Collection<Booking> findAllByBookerIdAndStartIsAfterOrderByStartDesc(Long bookerId,
-                                                                         LocalDateTime now);
+    List<Booking> findAllByBookerIdAndStartIsAfterOrderByStartDesc(Long bookerId,
+                                                                   LocalDateTime now,
+                                                                   Pageable pageRequest);
 
-    Collection<Booking> findAllByBookerIdAndStatusInOrderByStartDesc(Long bookerId,
-                                                                     List<BookingStatus> rejectedStatuses);
+    List<Booking> findAllByBookerIdAndStatusInOrderByStartDesc(Long bookerId,
+                                                               List<BookingStatus> rejectedStatuses,
+                                                               Pageable pageRequest);
 
-    Collection<Booking> findAllByBookerIdAndStatusOrderByStartDesc(Long bookerId, BookingStatus bookingStatus);
+    List<Booking> findAllByBookerIdAndStatusOrderByStartDesc(Long bookerId,
+                                                             BookingStatus bookingStatus,
+                                                             Pageable pageRequest);
 
     Optional<Booking> findFirstByItemIdAndStatusAndStartIsBeforeOrStartEqualsOrderByEndDesc(Long itemId,
                                                                                             BookingStatus bookingStatus,

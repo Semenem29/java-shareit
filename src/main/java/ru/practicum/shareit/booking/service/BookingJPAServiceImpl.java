@@ -2,9 +2,11 @@ package ru.practicum.shareit.booking.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.booking.BookingMapper;
-import ru.practicum.shareit.booking.dto.BookingRequestDto;
+import ru.practicum.shareit.booking.dto.BookingDto;
 import ru.practicum.shareit.booking.dto.BookingResponseDto;
 import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.booking.model.BookingState;
@@ -37,18 +39,18 @@ public class BookingJPAServiceImpl implements BookingJPAService {
 
     @Override
     @Transactional
-    public BookingResponseDto createBooking(BookingRequestDto bookingRequestDto, Long bookerId) {
-        validateDateAndTime(bookingRequestDto.getStart(), bookingRequestDto.getEnd());
-        Item item = getItemOrThrow(bookingRequestDto.getItemId());
+    public BookingResponseDto createBooking(BookingDto bookingDto, Long bookerId) {
+        validateDateAndTime(bookingDto.getStart(), bookingDto.getEnd());
+        Item item = getItemOrThrow(bookingDto.getItemId());
         checkIsItemAvailable(item);
         User owner = getUserOrThrow(bookerId);
         checkIsNotOwnerOrThrow(item, bookerId);
 
-        Booking booking = BookingMapper.toBooking(bookingRequestDto, owner, item, BookingStatus.WAITING);
-        bookingJPARepository.save(booking);
-        log.info(String.format("booking is completed: ", booking));
+        Booking booking = BookingMapper.toBooking(bookingDto, owner, item, BookingStatus.WAITING);
+        Booking savedBooking = bookingJPARepository.save(booking);
+        log.info(String.format("booking is completed: ", savedBooking));
 
-        return BookingMapper.toBookingResponseDto(booking);
+        return BookingMapper.toBookingResponseDto(savedBooking);
     }
 
     @Override
@@ -81,41 +83,43 @@ public class BookingJPAServiceImpl implements BookingJPAService {
 
     @Override
     @Transactional(readOnly = true)
-    public Collection<BookingResponseDto> getBookingsByOwner(Long ownerId, String state) {
+    public List<BookingResponseDto> getBookingsByOwner(Long ownerId, String state, Integer from, Integer size) {
         getUserOrThrow(ownerId);
         BookingState bookingState = getBookingStateOrThrow(state);
         LocalDateTime now = LocalDateTime.now();
         Collection<Booking> ownerBookings;
+        int page = from / size;
+        Pageable pageRequest = PageRequest.of(page, size);
 
         switch (bookingState) {
             case ALL:
-                ownerBookings = bookingJPARepository.findAllByItemOwnerIdOrderByStartDesc(ownerId);
+                ownerBookings = bookingJPARepository.findAllByItemOwnerIdOrderByStartDesc(ownerId, pageRequest);
                 break;
 
             case PAST:
                 ownerBookings = bookingJPARepository
-                        .findAllByItemOwnerIdAndEndIsBeforeOrderByStartDesc(ownerId, now);
+                        .findAllByItemOwnerIdAndEndIsBeforeOrderByStartDesc(ownerId, now, pageRequest);
                 break;
 
             case CURRENT:
                 ownerBookings = bookingJPARepository
-                        .findAllByItemOwnerIdAndStartIsBeforeAndEndIsAfterOrderByStartDesc(ownerId, now, now);
+                        .findAllByItemOwnerIdAndStartIsBeforeAndEndIsAfterOrderByStartDesc(ownerId, now, now, pageRequest);
                 break;
 
             case FUTURE:
                 ownerBookings = bookingJPARepository
-                        .findAllByItemOwnerIdAndStartIsAfterOrderByStartDesc(ownerId, now);
+                        .findAllByItemOwnerIdAndStartIsAfterOrderByStartDesc(ownerId, now, pageRequest);
                 break;
 
             case REJECTED:
                 List<BookingStatus> rejectedStatuses = List.of(REJECTED, CANCELED);
                 ownerBookings = bookingJPARepository
-                        .findAllByItemOwnerIdAndStatusInOrderByStartDesc(ownerId, rejectedStatuses);
+                        .findAllByItemOwnerIdAndStatusInOrderByStartDesc(ownerId, rejectedStatuses, pageRequest);
                 break;
 
             case WAITING:
                 ownerBookings = bookingJPARepository
-                        .findAllByItemOwnerIdAndStatusOrderByStartDesc(ownerId, WAITING);
+                        .findAllByItemOwnerIdAndStatusOrderByStartDesc(ownerId, WAITING, pageRequest);
                 break;
             default:
                 String message = "Unknown state: UNSUPPORTED_STATUS";
@@ -129,41 +133,43 @@ public class BookingJPAServiceImpl implements BookingJPAService {
 
     @Override
     @Transactional(readOnly = true)
-    public Collection<BookingResponseDto> getBookingsByBooker(Long bookerId, String state) {
+    public List<BookingResponseDto> getBookingsByBooker(Long bookerId, String state, Integer from, Integer size) {
         getUserOrThrow(bookerId);
         BookingState bookingState = getBookingStateOrThrow(state);
         LocalDateTime now = LocalDateTime.now();
         Collection<Booking> bookerBookings;
+        int page  = from / size;
+        Pageable pageRequest = PageRequest.of(page, size);
 
         switch (bookingState) {
             case ALL:
-                bookerBookings = bookingJPARepository.findAllByBookerIdOrderByStartDesc(bookerId);
+                bookerBookings = bookingJPARepository.findAllByBookerIdOrderByStartDesc(bookerId, pageRequest);
                 break;
 
             case PAST:
                 bookerBookings = bookingJPARepository
-                        .findAllByBookerIdAndEndIsBeforeOrderByStartDesc(bookerId, now);
+                        .findAllByBookerIdAndEndIsBeforeOrderByStartDesc(bookerId, now, pageRequest);
                 break;
 
             case CURRENT:
                 bookerBookings = bookingJPARepository
-                        .findAllByBookerIdAndStartIsBeforeAndEndIsAfterOrderByStartDesc(bookerId, now, now);
+                        .findAllByBookerIdAndStartIsBeforeAndEndIsAfterOrderByStartDesc(bookerId, now, now, pageRequest);
                 break;
 
             case FUTURE:
                 bookerBookings = bookingJPARepository
-                        .findAllByBookerIdAndStartIsAfterOrderByStartDesc(bookerId, now);
+                        .findAllByBookerIdAndStartIsAfterOrderByStartDesc(bookerId, now, pageRequest);
                 break;
 
             case REJECTED:
                 List<BookingStatus> rejectedStatuses = List.of(REJECTED, CANCELED);
                 bookerBookings = bookingJPARepository
-                        .findAllByBookerIdAndStatusInOrderByStartDesc(bookerId, rejectedStatuses);
+                        .findAllByBookerIdAndStatusInOrderByStartDesc(bookerId, rejectedStatuses, pageRequest);
                 break;
 
             case WAITING:
                 bookerBookings = bookingJPARepository
-                        .findAllByBookerIdAndStatusOrderByStartDesc(bookerId, WAITING);
+                        .findAllByBookerIdAndStatusOrderByStartDesc(bookerId, WAITING, pageRequest);
                 break;
 
             default:
@@ -254,8 +260,8 @@ public class BookingJPAServiceImpl implements BookingJPAService {
 
 
     private Booking validateItemOwnerAndGetBooking(Long ownerId, Long bookingId) {
-        Booking booking = getBookingOrThrow(bookingId);
         User owner = getUserOrThrow(ownerId);
+        Booking booking = getBookingOrThrow(bookingId);
         if (!isOwner(owner.getId(), booking.getItem())) {
             String message = "to set booking status you must be the owner!!!";
             log.error("AccessIsDeniedException: " + message);

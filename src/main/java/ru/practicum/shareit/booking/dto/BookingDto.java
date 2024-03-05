@@ -12,7 +12,7 @@ import java.time.LocalDateTime;
 @Value
 @Builder(toBuilder = true)
 @RequiredArgsConstructor
-public class BookingRequestDto {
+public class BookingDto {
     Long id;
     @FutureOrPresent
     @NotNull

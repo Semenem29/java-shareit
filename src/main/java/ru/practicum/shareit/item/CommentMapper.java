@@ -24,6 +24,16 @@ public class CommentMapper {
                 .build();
     }
 
+    public static CommentResponseDto toCommentResponseDto(CommentRequestDto commentDto) {
+        return CommentResponseDto.builder()
+                .id(commentDto.getId())
+                .text(commentDto.getText())
+                .authorName(commentDto.getAuthorName())
+                .itemId(commentDto.getItemId())
+                .created(LocalDateTime.now())
+                .build();
+    }
+
     public static Comment toComment(CommentRequestDto commentRequestDto, User author, Item item) {
         return Comment.builder()
                 .id(commentRequestDto.getId())

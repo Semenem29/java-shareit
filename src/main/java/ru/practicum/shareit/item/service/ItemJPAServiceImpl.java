@@ -2,6 +2,8 @@ package ru.practicum.shareit.item.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.booking.BookingMapper;
 import ru.practicum.shareit.booking.dto.BookingItemResponseDto;
@@ -19,6 +21,8 @@ import ru.practicum.shareit.item.model.Comment;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.storage.CommentJPARepository;
 import ru.practicum.shareit.item.storage.ItemJPARepository;
+import ru.practicum.shareit.request.model.ItemRequest;
+import ru.practicum.shareit.request.store.ItemRequestJPARepository;
 import ru.practicum.shareit.user.storage.UserJPARepository;
 import ru.practicum.shareit.user.model.User;
 
@@ -37,16 +41,33 @@ public class ItemJPAServiceImpl implements ItemJPAService {
     private final UserJPARepository userJPARepository;
     private final BookingJPARepository bookingJPARepository;
     private final CommentJPARepository commentJPARepository;
+    private final ItemRequestJPARepository itemRequestJPARepository;
 
     @Override
     @Transactional
     public ItemDto createItem(ItemDto itemDto, Long ownerId) {
         User owner = getUserOrThrow(ownerId);
-        Item item = ItemMapper.toItem(itemDto, owner, null);
+        ItemRequest itemRequest = getItemRequestOrThrow(itemDto);
+        Item item = ItemMapper.toItem(itemDto, owner, itemRequest);
 
-        itemJPARepository.save(item);
-        log.info("Saved the item: {}", item);
-        return ItemMapper.toItemDto(item);
+        Item savedItem = itemJPARepository.save(item);
+        log.info("Saved the item: {}", savedItem);
+        return ItemMapper.toItemDto(savedItem);
+    }
+
+    private ItemRequest getItemRequestOrThrow(ItemDto itemDto) {
+        if (itemDto.getRequestId() == null) {
+            return null;
+        }
+
+        Optional<ItemRequest> itemRequestOpt = itemRequestJPARepository.findById(itemDto.getRequestId());
+        if (itemRequestOpt.isEmpty()) {
+            String message = "there is no item request with id: " + itemDto.getRequestId();
+            log.error("ItemRequestNotExistException: " + message);
+            throw new ItemRequestNotExistException("there is no item with id: " + itemDto.getRequestId());
+        }
+
+        return itemRequestOpt.get();
     }
 
     @Override
@@ -87,8 +108,10 @@ public class ItemJPAServiceImpl implements ItemJPAService {
 
     @Override
     @Transactional
-    public List<ItemResponseDto> getItemsOfOwner(Long ownerId) {
-        List<Item> items = itemJPARepository.findAllByOwnerId(ownerId);
+    public List<ItemResponseDto> getItemsOfOwner(Long ownerId, Integer from, Integer size) {
+        int page = from / size;
+        Pageable pageRequest = PageRequest.of(page, size);
+        List<Item> items = itemJPARepository.findAllByOwnerId(ownerId, pageRequest);
         Map<Item, List<Comment>> commentsTable = getCommentOfItems(items);
         List<ItemResponseDto> itemResponseDtos = items.stream()
                 .map(item -> toItemResponseDto(
@@ -105,13 +128,16 @@ public class ItemJPAServiceImpl implements ItemJPAService {
 
     @Override
     @Transactional
-    public List<ItemResponseDto> findItemsByText(String text) {
+    public List<ItemResponseDto> findItemsByText(String text, Integer from, Integer size) {
         if (text.isBlank()) {
             log.info("Provided empty list");
             return new ArrayList<>();
         }
 
-        List<Item> items = itemJPARepository.searchItemBySubstring(text);
+        int page = from / size;
+        Pageable pageRequest = PageRequest.of(page, size);
+
+        List<Item> items = itemJPARepository.searchItemBySubstring(text, pageRequest);
         Map<Item, List<Comment>> commentsTable = getCommentOfItems(items);
         List<ItemResponseDto> itemResponseDtos = items.stream()
                 .map(item -> toItemResponseDto(
@@ -138,9 +164,9 @@ public class ItemJPAServiceImpl implements ItemJPAService {
 
         validAccessToAddComment(userId, itemId);
         Comment comment = CommentMapper.toComment(commentRequestDto, author, item);
-        commentJPARepository.save(comment);
-        log.info("Created the comment with authorId={}, itemId={}, and comment={}", userId, itemId, comment);
-        return CommentMapper.toCommentResponseDto(comment);
+        Comment savedComment = commentJPARepository.save(comment);
+        log.info("Created the comment with authorId={}, itemId={}, and comment={}", userId, itemId, savedComment);
+        return CommentMapper.toCommentResponseDto(savedComment);
     }
 
     private void validAccessToAddComment(Long userId, Long itemId) {

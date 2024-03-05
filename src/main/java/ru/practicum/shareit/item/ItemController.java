@@ -2,6 +2,7 @@ package ru.practicum.shareit.item;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.item.dto.CommentRequestDto;
 import ru.practicum.shareit.item.dto.CommentResponseDto;
@@ -11,12 +12,15 @@ import ru.practicum.shareit.item.service.ItemJPAService;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Positive;
+import javax.validation.constraints.PositiveOrZero;
 import java.util.List;
 
 @RestController
 @RequestMapping("/items")
 @RequiredArgsConstructor
 @Slf4j
+@Validated
 public class ItemController {
 
     private final ItemJPAService itemService;
@@ -44,15 +48,23 @@ public class ItemController {
     }
 
     @GetMapping
-    public List<ItemResponseDto> getItemsOfOwner(@NotNull @RequestHeader("X-Sharer-User-Id") Long ownerId) {
-        log.info("GET-request: get items of owner request from user with id={}", ownerId);
-        return itemService.getItemsOfOwner(ownerId);
+    public List<ItemResponseDto> getItemsOfOwner(@NotNull @RequestHeader("X-Sharer-User-Id") Long ownerId,
+                                                 @PositiveOrZero @RequestParam(
+                                                         value = "from", defaultValue = "0") Integer from,
+                                                 @Positive @RequestParam(
+                                                         value = "size", defaultValue = "10") Integer size) {
+        log.info("GET-request: get items of owner request from user with id={}, from={}, size={}",
+                ownerId, from, size);
+        return itemService.getItemsOfOwner(ownerId, from, size);
     }
 
     @GetMapping("/search")
-    public List<ItemResponseDto> searchItems(@NotNull @RequestParam String text) {
-        log.info("GET-request: find items by substring={} in the name or the description", text);
-        return itemService.findItemsByText(text);
+    public List<ItemResponseDto> searchItems(@NotNull @RequestParam String text,
+                                             @PositiveOrZero @RequestParam(value = "from", defaultValue = "0") Integer from,
+                                             @Positive @RequestParam(value = "size", defaultValue = "10") Integer size) {
+        log.info("GET-request: find items by substring={} in the name or the description, from={}, size={}",
+                text, from, size);
+        return itemService.findItemsByText(text, from, size);
     }
 
     @PostMapping("/{itemId}/comment")
